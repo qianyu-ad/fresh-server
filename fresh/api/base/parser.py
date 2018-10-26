@@ -41,6 +41,14 @@ class ParseForm(BaseParseForm):
         self.parser.add_argument('size', default=size, type=int)
 
 
+def admin_parse_form():
+    """ 管理员登录"""
+    parser = ParseForm()
+    parser.add('username', required=True)
+    parser.add('password', required=True)
+    return parser
+
+
 def tag_parse_form():
     """ 标签"""
     parser = ParseForm()

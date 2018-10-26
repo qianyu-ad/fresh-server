@@ -57,6 +57,13 @@ class Admin(db.Model, UserMixin):
         """ 验证密码"""
         return self.password_hash == cryptor.encrypt(password, salt=self.salt)
 
+    @classmethod
+    def authenticate(cls, username, password):
+        """ 验证"""
+        admin = Admin.query.filter_by(username=username).first()
+        if admin and admin.verify_password(password):
+            return admin
+
     def __repr__(self):
         return '<Admin id: {}, username: {}>'.format(self.id, self.username)
 
@@ -90,33 +97,11 @@ class User(db.Model, CRUDMixin):
     soft_del = db.Column(db.Boolean, default=False)
 
 
-def authenticate(username, password):
-    """ 验证"""
-    user = User.query.filter_by(username=username).first()
-    if user and user.verify_password(password):
-        return user
-
-
-def identity(payload):
-    """ 获取用户身份"""
-    user_id = payload['identity']
-    return User.query.filter_by(id=user_id).first()
-
-
-def auth_response(token, identity):
-    """ 认证返回"""
-    return jsonify({
-        'access_token': token.decode('utf-8'),
-        'username': identity.username,
-        'role': identity.role.name,
-    })
-
-
 @login_manager.user_loader
-def load_user(user_id):
+def load_user(admin_id):
     """ 获取登录用户"""
-    user = User.query.filter_by(id=user_id).first()
-    return user
+    admin = Admin.query.filter_by(id=admin_id).first()
+    return admin
 
 
 # @login_manager.unauthorized_handler

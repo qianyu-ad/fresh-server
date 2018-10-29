@@ -8,6 +8,7 @@ api 路由加载， 需要加载模块到当前文件, 例如:
 from fresh.api import auth
 from fresh.api import article
 from fresh.api import reply
+from fresh.api import user
 
 
 from fresh.api.base import register_restful_api

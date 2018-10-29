@@ -8,6 +8,7 @@ from flask_login import UserMixin
 from fresh.extends import db, login_manager, cryptor
 from fresh.utils import get_code
 from fresh.mixins.crud import CRUDMixin
+from fresh.utils import fmt_datetime as fmt_dt
 
 # pylint: disable=all
 
@@ -95,6 +96,19 @@ class User(db.Model, CRUDMixin):
     update_time = db.Column(db.DateTime, default=datetime.now)
     last_login_time = db.Column(db.DateTime, default=datetime.now)
     soft_del = db.Column(db.Boolean, default=False)
+
+    def to_json(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'avatarUrl': self.avatar_url,
+            'gender': self.gender,
+            'country': self.country,
+            'province': self.province,
+            'city': self.city,
+            'createTime': fmt_dt(self.create_time),
+            'updateTime': fmt_dt(self.update_time),
+        }
 
 
 @login_manager.user_loader

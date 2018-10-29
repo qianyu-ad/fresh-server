@@ -55,3 +55,8 @@ def test_data():
         article_id=article.id,
         count=10,
     )
+
+    t1 = Tag.create(name='上衣')
+    t2 = Tag.create(name='下衣')
+    r1 = ArticleTagRef.create(article_id=article.id, tag_id=t1.id)
+    r2 = ArticleTagRef.create(article_id=article.id, tag_id=t2.id)

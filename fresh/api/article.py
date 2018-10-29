@@ -8,6 +8,7 @@ from fresh.models.topic import (
     ReadHistory,
     Like,
     Favorite,
+    Tag,
     ArticleTagRef
 )
 from fresh.models.user import User
@@ -20,18 +21,35 @@ class ArticleResponse(object):
     """ 格式化文章返回值"""
 
     @classmethod
+    def get_tag_map(cls, article_ids):
+        refs = ArticleTagRef.query.filter(ArticleTagRef.article_id.in_(article_ids))
+        tag_ids = [r.tag_id for r in refs]
+        tags = Tag.query.filter(Tag.id.in_(tag_ids))
+        result = {}
+        for article_id in article_ids:
+            _refs = refs.filter(ArticleTagRef.article_id == article_id)
+            _tag_ids = [r.tag_id for r in _refs]
+            result[article_id] = tags.filter(ArticleTagRef.tag_id.in_(_tag_ids))
+        return result
+
+
+    @classmethod
     def json(cls, articles):
         ids = [article.id for article in articles]
         user_ids = [article.user_id for article in articles]
         category_ids = [article.category_id for article in articles]
+
         users = User.query.filter(User.id.in_(user_ids))
         categories = Category.query.filter(Category.id.in_(category_ids))
         likes = Like.query.filter(Like.m_id.in_(ids), Like.type == Like.TYPE_ARTICLE)
         read_histories = ReadHistory.query.filter(ReadHistory.article_id.in_(ids))
+        tag_list = cls.get_tag_map(ids)
+
         result = []
         for article in articles:
             user = users.filter(User.id == article.user_id).first()
             category = categories.filter(Category.id == article.category_id).first()
+            tags = tag_list[article.id]
             like_count = likes.filter(Like.m_id == article.id).count()
             reads = read_histories.filter(ReadHistory.article_id == article.id)
             read_count = reads.count()
@@ -51,9 +69,11 @@ class ArticleResponse(object):
                     'id': category.id,
                     'name': category.name,
                 },
+                'status': article.status,
                 'likes': like_count,
                 'reads': read_count,
                 'clicks': click_count,
+                'tags': [t.to_json() for t in tags]
             })
         return result
 

@@ -12,7 +12,7 @@ class LogHandler(object):
     def get_fmt(cls):
         fmt = '[%(levelname)s] [%(asctime)s] [File: %(filename)s] [Line: %(lineno)d] Message: %(message)s'
         formatter = logging.Formatter(fmt)
-        formatter.datefmt = '%Y%m%d %H:%M:%S'
+        formatter.datefmt = '%Y-%m-%d %H:%M:%S'
         return formatter
     
     @classmethod

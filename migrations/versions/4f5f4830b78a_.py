@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: b7b6b14b58b2
+Revision ID: 4f5f4830b78a
 Revises: 
-Create Date: 2018-10-23 18:13:13.168008
+Create Date: 2018-10-29 18:56:03.957383
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = 'b7b6b14b58b2'
+revision = '4f5f4830b78a'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -105,7 +105,7 @@ def upgrade():
     )
     op.create_table('tag',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('name', sa.Integer(), nullable=False),
+    sa.Column('name', sa.String(length=30), nullable=False),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('name'),
     mysql_charset='utf8mb4',

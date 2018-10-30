@@ -11,7 +11,7 @@ from fresh.models.topic import (
     Favorite
 )
 from fresh.models.user import User
-from fresh.api.parser import ParseFrom
+from flask_login import login_required
 
 
 def parse_form():
@@ -21,21 +21,56 @@ def parse_form():
     return parser
 
 
-@router('/api/categoies')
+@router('/api/categories')
 class CategoryList(RestApi):
     """ 分类"""
 
     def get(self):
-        categories = Category.get()
+        categories = Category.get().order_by(
+            Category.id
+        )
         return self.ok(categories=[c.to_json() for c in categories])
 
+    @login_required
     def post(self):
         data = parse_form().parse_args()
+        category = Category.get(**data)
+        if category:
+            return self.no(msg='该分类名称已存在')
+
         category = Category.create(**data)
         if category:
             return self.ok(msg='创建成功')
         else:
             return self.no(msg='创建失败')
+
+
+@router('/api/categories/<int:c_id>')
+class CategoryOne(RestApi):
+    """ 分类"""
+
+    decorators = [login_required]
+
+    def post(self, c_id):
+        data = parse_form().parse_args()
+        category = Category.get(**data)
+        if category:
+            return self.no(msg='该分类名称已存在')
+
+        category = Category.get_first(id=c_id)
+        if category:
+            category.update(name=data['name'])
+            return self.ok(msg='更新成功')
+        else:
+            return self.no(msg='没有找到该分类')
+    
+    def delete(self, c_id):
+        category = Category.get_first(id=c_id)
+        if category:
+            category.delete(force=True)
+            return self.ok(msg='删除成功')
+        else:
+            return self.no(msg='没有找到该分类')
 
 
 @router('/api/tags')
@@ -53,3 +88,31 @@ class TagList(RestApi):
             return self.ok(msg='创建成功')
         else:
             return self.no(msg='创建失败')
+
+
+
+@router('/api/tags/<int:t_id>')
+class TagOne(RestApi):
+
+    decorators = [login_required]
+
+    def post(self, t_id):
+        data = parse_form().parse_args()
+        tag = Tag.get(**data)
+        if tag:
+            return self.no(msg='该标签已存在')
+        
+        tag = Tag.get_first(id=t_id)
+        if tag:
+            tag.update(**data)
+            return self.ok(msg='更新成功')
+        else:
+            return self.no(msg='没有找到该标签')
+    
+    def delete(self, t_id):
+        tag = Tag.get_first(id=t_id)
+        if tag:
+            tag.delete(force=True)
+            return self.ok(msg='删除成功')
+        else:
+            return self.no(msg='没有找到该标签')

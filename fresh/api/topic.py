@@ -34,9 +34,9 @@ class CategoryList(RestApi):
     @login_required
     def post(self):
         data = parse_form().parse_args()
-        category = Category.get(**data)
+        category = Category.get_first(**data)
         if category:
-            return self.no(msg='该分类名称已存在')
+            return self.no(msg='分类名称已存在')
 
         category = Category.create(**data)
         if category:
@@ -52,25 +52,31 @@ class CategoryOne(RestApi):
     decorators = [login_required]
 
     def post(self, c_id):
+        """ 更新"""
         data = parse_form().parse_args()
-        category = Category.get(**data)
+        category = Category.get_first(**data)
         if category:
-            return self.no(msg='该分类名称已存在')
+            return self.no(msg='分类名称已存在')
 
         category = Category.get_first(id=c_id)
         if category:
             category.update(name=data['name'])
             return self.ok(msg='更新成功')
         else:
-            return self.no(msg='没有找到该分类')
+            return self.no(msg='没有找到分类')
     
     def delete(self, c_id):
+        """ 删除"""
         category = Category.get_first(id=c_id)
+        article_count = Article.get(category_id=c_id, soft_del=False).count()
         if category:
-            category.delete(force=True)
-            return self.ok(msg='删除成功')
+            if article_count > 0:
+                return self.no(msg='分类下包含文章无法删除')
+            else:
+                category.delete(force=True)
+                return self.ok(msg='删除成功')
         else:
-            return self.no(msg='没有找到该分类')
+            return self.no(msg='没有找到分类')
 
 
 @router('/api/tags')
@@ -98,21 +104,21 @@ class TagOne(RestApi):
 
     def post(self, t_id):
         data = parse_form().parse_args()
-        tag = Tag.get(**data)
+        tag = Tag.get_first(**data)
         if tag:
-            return self.no(msg='该标签已存在')
+            return self.no(msg='标签已存在')
         
         tag = Tag.get_first(id=t_id)
         if tag:
             tag.update(**data)
             return self.ok(msg='更新成功')
         else:
-            return self.no(msg='没有找到该标签')
-    
+            return self.no(msg='没有找到标签')
+
     def delete(self, t_id):
         tag = Tag.get_first(id=t_id)
         if tag:
             tag.delete(force=True)
             return self.ok(msg='删除成功')
         else:
-            return self.no(msg='没有找到该标签')
+            return self.no(msg='没有找到标签')

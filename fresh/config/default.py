@@ -24,6 +24,7 @@ DB_CONFIG = dict(
 )
 
 FET_AES_SECRET_KEY = b'fet aes secret key'
+SESSION_COOKIE_HTTPONLY = False
 
 # mail 配置
 MAIL_SERVER = ''

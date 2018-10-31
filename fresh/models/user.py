@@ -64,7 +64,7 @@ class Admin(db.Model, UserMixin):
         admin = Admin.query.filter_by(username=username).first()
         if admin and admin.verify_password(password):
             return admin
-
+    
     def __repr__(self):
         return '<Admin id: {}, username: {}>'.format(self.id, self.username)
 

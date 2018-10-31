@@ -12,7 +12,7 @@ class AdminLogin(RestApi):
         data = admin_parse_form().args()
         admin = Admin.authenticate(data['username'], data['password'])
         if admin:
-            login_user(admin)
+            login_user(admin, True)
             logger.info('Login User: {}'.format(admin.username))
             return self.ok(msg="成功登录")
         else:
@@ -25,5 +25,7 @@ class AdminLogout(RestApi):
     decorators = [login_required]
 
     def get(self):
+        admin = self.get_user()
+        logger.info('Logout User: {}'.format(admin.username))
         logout_user()
         return self.ok(msg='成功退出')

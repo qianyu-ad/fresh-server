@@ -15,6 +15,11 @@ class CRUDMixin(object):
     def get(cls, **kw):
         instance_list = cls.query.filter_by(**kw)
         return instance_list
+    
+    @classmethod
+    def get_raw(cls, *args):
+        instance_list = cls.query.filter(*args)
+        return instance_list
 
     @classmethod
     def create(cls, **kw):
